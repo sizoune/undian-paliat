@@ -89,12 +89,17 @@ export default function App() {
 			{!showDialog && (
 				<div className="w-full max-w-4xl">
 					<div className="text-center mb-8">
-						<img
-							src="/tabalongsmart.png"
-							alt="Tabalong Smart"
-							className="h-24 mx-auto mb-4"
-						/>
-						<h1 className="text-yellow-300 mb-2">Undian Berhadiah</h1>
+						<div className="flex items-center justify-center gap-4 mb-4">
+							<img src="/tabalong.png" alt="Tabalong" className="h-24 mb-4" />
+							<img
+								src="/tabalongsmart.png"
+								alt="Tabalong Smart"
+								className="h-24 mb-4"
+							/>
+						</div>
+						<h1 className="text-yellow-300 mb-2">
+							Undian Kupon Makan Paliat Besamaan
+						</h1>
 						<p className="text-yellow-200/90">
 							Range: {startNumber} - {endNumber} | Total Undian: {totalDraws}
 						</p>
