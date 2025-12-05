@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+yarn.lock
+package-lock.json
+
+# Build
+build
+public/build
+
+# Editor
+.vscode
+
+# Logs
+logs
+*.log
+
+# Other
+.DS_Store
+Thumbs.db
