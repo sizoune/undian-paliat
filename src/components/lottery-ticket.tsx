@@ -4,11 +4,13 @@ import { motion } from "motion/react";
 interface LotteryTicketProps {
 	currentNumber: number;
 	isDrawing: boolean;
+	maxDigits?: number;
 }
 
 export function LotteryTicket({
 	currentNumber,
 	isDrawing,
+	maxDigits = 3,
 }: LotteryTicketProps) {
 	return (
 		<div className="relative">
@@ -49,7 +51,7 @@ export function LotteryTicket({
 									className="text-8xl text-black tabular-nums tracking-wider"
 									style={{ fontFamily: "monospace" }}
 								>
-									{String(currentNumber).padStart(3, "0")}
+									{String(currentNumber).padStart(maxDigits, "0")}
 								</motion.div>
 								{isDrawing && (
 									<motion.p

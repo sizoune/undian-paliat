@@ -107,6 +107,9 @@ export default function App() {
 
 		// Animate for 3 seconds then draw a number
 		setTimeout(() => {
+			// LOGIC UNDIAN: MURNI RANDOM
+			// Menggunakan Math.random() untuk memilih satu indeks secara acak dari array availableNumbers.
+			// Tidak ada manipulasi atau 'settingan', setiap nomor yang tersisa memiliki peluang yang sama untuk terpilih.
 			const randomIndex = Math.floor(Math.random() * availableNumbers.length);
 			const drawnNumber = availableNumbers[randomIndex];
 
@@ -165,6 +168,18 @@ export default function App() {
 		}
 	}, []);
 
+	// Redraw (Undi Ulang) - removes last winner and draws again immediately
+	const handleRedraw = useCallback(() => {
+		if (isDrawing || drawnNumbers.length === 0) return;
+
+		// Remove the last drawn number (it's voided/hangus)
+		// We do NOT add it back to avaiableNumbers because it's voided
+		setDrawnNumbers((prev) => prev.slice(0, -1));
+
+		// Start drawing immediately
+		handleStartDrawing();
+	}, [isDrawing, drawnNumbers.length, handleStartDrawing]);
+
 	// Keyboard binding
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -176,11 +191,15 @@ export default function App() {
 				e.preventDefault();
 				toggleFullscreen();
 			}
+			if ((e.code === "KeyR" || e.key.toLowerCase() === "r") && !showDialog) {
+				e.preventDefault();
+				handleRedraw();
+			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleStartDrawing, toggleFullscreen, showDialog]);
+	}, [handleStartDrawing, toggleFullscreen, showDialog, handleRedraw]);
 
 	const handleReset = () => {
 		if (confirm("Apakah Anda yakin ingin mereset semua data undian?")) {
