@@ -9,6 +9,13 @@ import { LotteryTicket } from "./components/lottery-ticket";
 const drumRoll = new Audio("/sounds/drum-roll.mp3");
 drumRoll.loop = true;
 const tada = new Audio("/sounds/tada.mp3");
+const applause = new Audio("/sounds/applause.mp3");
+
+// Chain sounds
+tada.onended = () => {
+	applause.currentTime = 0;
+	applause.play().catch(() => {});
+};
 
 export default function App() {
 	const [showDialog, setShowDialog] = useState(true);
@@ -41,6 +48,12 @@ export default function App() {
 		setIsDrawing(true);
 		drumRoll.currentTime = 0;
 		drumRoll.play().catch(() => {}); // catch error if user hasn't interacted yet
+
+		// Reset effects
+		tada.pause();
+		tada.currentTime = 0;
+		applause.pause();
+		applause.currentTime = 0;
 
 		// Animate for 3 seconds then draw a number
 		setTimeout(() => {
