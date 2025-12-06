@@ -1,5 +1,5 @@
 /** biome-ignore-all lint/a11y/useButtonType: template */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DrawnNumbers } from "./components/drawn-numbers";
 import { LotteryDialog } from "./components/lottery-dialog";
 import { LotteryTicket } from "./components/lottery-ticket";
@@ -29,7 +29,7 @@ export default function App() {
 		setDrawnNumbers([]);
 	};
 
-	const handleStartDrawing = () => {
+	const handleStartDrawing = useCallback(() => {
 		if (isDrawing || drawnNumbers.length >= totalDraws) return;
 
 		setIsDrawing(true);
@@ -45,7 +45,20 @@ export default function App() {
 			);
 			setIsDrawing(false);
 		}, 3000);
-	};
+	}, [isDrawing, drawnNumbers, totalDraws, availableNumbers]);
+
+	// Keyboard binding
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.code === "Space" && !showDialog) {
+				e.preventDefault();
+				handleStartDrawing();
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [handleStartDrawing, showDialog]);
 
 	const handleReset = () => {
 		setShowDialog(true);
