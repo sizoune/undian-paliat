@@ -17,6 +17,17 @@ Aplikasi ini mendukung penggunaan keyboard untuk memudahkan operator:
 - **R**: Mengundi ulang (menghanguskan nomor terakhir dan langsung mengundi nomor baru).
 - **F**: Masuk/Keluar mode layar penuh (Fullscreen).
 
+## Metode Pengundian (Transparansi)
+
+Aplikasi ini menjamin keadilan dalam setiap undian dengan menggunakan metode pengacaakan murni:
+
+1. **Random Generator**: Menggunakan fungsi `Math.random()` bawaan JavaScript yang merupakan standar industri untuk pengacaakan di sisi klien.
+2. **Tanpa Manipulasi**: Tidak ada bobot atau prioritas pada nomor tertentu. Setiap nomor yang belum terpilih memiliki probabilitas matematika yang persis sama (1/n) untuk terpilih.
+3. **Proses**:
+   - Sistem mengumpulkan semua nomor yang valid (masuk range dan belum menang).
+   - Sistem memilih satu indeks secara acak dari kumpulan tersebut.
+   - Nomor yang terpilih langsung ditandai dan dihapus dari kumpulan nomor yang tersedia untuk undian berikutnya.
+
 ## Tampilan Aplikasi
 
 Berikut adalah tangkapan layar dari aplikasi:
