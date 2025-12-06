@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/a11y/useButtonType: template */
 import confetti from "canvas-confetti";
+import { Maximize, Minimize } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { DrawnNumbers } from "./components/drawn-numbers";
 import { LotteryDialog } from "./components/lottery-dialog";
@@ -18,20 +19,69 @@ tada.onended = () => {
 };
 
 export default function App() {
-	const [showDialog, setShowDialog] = useState(true);
-	const [startNumber, setStartNumber] = useState(1);
-	const [endNumber, setEndNumber] = useState(100);
-	const [totalDraws, setTotalDraws] = useState(5);
+	const [showDialog, setShowDialog] = useState(() => {
+		return !localStorage.getItem("undian-paliat-config");
+	});
+	const [startNumber, setStartNumber] = useState(() => {
+		const saved = localStorage.getItem("undian-paliat-config");
+		return saved ? JSON.parse(saved).start : 1;
+	});
+	const [endNumber, setEndNumber] = useState(() => {
+		const saved = localStorage.getItem("undian-paliat-config");
+		return saved ? JSON.parse(saved).end : 100;
+	});
+	const [totalDraws, setTotalDraws] = useState(() => {
+		const saved = localStorage.getItem("undian-paliat-config");
+		return saved ? JSON.parse(saved).total : 5;
+	});
 	const [isDrawing, setIsDrawing] = useState(false);
+	const [isFullscreen, setIsFullscreen] = useState(false);
+	const [drawnNumbers, setDrawnNumbers] = useState<number[]>(() => {
+		const saved = localStorage.getItem("undian-paliat-winners");
+		return saved ? JSON.parse(saved) : [];
+	});
 	const [currentNumber, setCurrentNumber] = useState(1);
-	const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
+
+	// Initialize currentNumber from saved state if exists
+	useEffect(() => {
+		if (drawnNumbers.length > 0) {
+			setCurrentNumber(drawnNumbers[drawnNumbers.length - 1]);
+		}
+	}, [drawnNumbers]);
+
 	const [availableNumbers, setAvailableNumbers] = useState<number[]>([]);
+
+	// Initialize availableNumbers logic on load if config exists
+	useEffect(() => {
+		const savedConfig = localStorage.getItem("undian-paliat-config");
+		if (savedConfig && availableNumbers.length === 0) {
+			const { start, end } = JSON.parse(savedConfig);
+			// Reconstruct available numbers excluding already drawn ones
+			const allNumbers = Array.from(
+				{ length: end - start + 1 },
+				(_, i) => start + i,
+			);
+			const remaining = allNumbers.filter((n) => !drawnNumbers.includes(n));
+			setAvailableNumbers(remaining);
+		}
+	}, [availableNumbers.length, drawnNumbers]);
+
+	// Persist drawn numbers
+	useEffect(() => {
+		localStorage.setItem("undian-paliat-winners", JSON.stringify(drawnNumbers));
+	}, [drawnNumbers]);
 
 	const handleStart = (start: number, end: number, total: number) => {
 		setStartNumber(start);
 		setEndNumber(end);
 		setTotalDraws(total);
 		setShowDialog(false);
+
+		// Save config
+		localStorage.setItem(
+			"undian-paliat-config",
+			JSON.stringify({ start, end, total }),
+		);
 
 		// Initialize available numbers
 		const numbers = Array.from(
@@ -61,6 +111,7 @@ export default function App() {
 			const drawnNumber = availableNumbers[randomIndex];
 
 			setDrawnNumbers((prev) => [...prev, drawnNumber]);
+			setCurrentNumber(drawnNumber); // Show the winner!
 			setAvailableNumbers((prev) =>
 				prev.filter((_, index) => index !== randomIndex),
 			);
@@ -102,6 +153,18 @@ export default function App() {
 		}, 3000);
 	}, [isDrawing, drawnNumbers, totalDraws, availableNumbers]);
 
+	const toggleFullscreen = useCallback(() => {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen();
+			setIsFullscreen(true);
+		} else {
+			if (document.exitFullscreen) {
+				document.exitFullscreen();
+				setIsFullscreen(false);
+			}
+		}
+	}, []);
+
 	// Keyboard binding
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -109,22 +172,38 @@ export default function App() {
 				e.preventDefault();
 				handleStartDrawing();
 			}
+			if (e.code === "KeyF") {
+				e.preventDefault();
+				toggleFullscreen();
+			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleStartDrawing, showDialog]);
+	}, [handleStartDrawing, toggleFullscreen, showDialog]);
 
 	const handleReset = () => {
-		setShowDialog(true);
-		setDrawnNumbers([]);
-		setIsDrawing(false);
-		setCurrentNumber(1);
+		if (confirm("Apakah Anda yakin ingin mereset semua data undian?")) {
+			setShowDialog(true);
+			setDrawnNumbers([]);
+			localStorage.removeItem("undian-paliat-winners");
+			localStorage.removeItem("undian-paliat-config");
+			setIsDrawing(false);
+			setCurrentNumber(1);
+
+			// Reset audio
+			drumRoll.pause();
+			drumRoll.currentTime = 0;
+			tada.pause();
+			tada.currentTime = 0;
+			applause.pause();
+			applause.currentTime = 0;
+		}
 	};
 
-	// Auto-generate random numbers for animation
+	// Auto-generate random numbers for animation (Attract Mode)
 	useEffect(() => {
-		if (!showDialog && !isDrawing) {
+		if (!showDialog && !isDrawing && drawnNumbers.length === 0) {
 			const interval = setInterval(() => {
 				setCurrentNumber(
 					Math.floor(Math.random() * (endNumber - startNumber + 1)) +
@@ -134,7 +213,7 @@ export default function App() {
 
 			return () => clearInterval(interval);
 		}
-	}, [showDialog, isDrawing, startNumber, endNumber]);
+	}, [showDialog, isDrawing, startNumber, endNumber, drawnNumbers.length]);
 
 	// Generate random numbers during drawing
 	useEffect(() => {
@@ -152,10 +231,18 @@ export default function App() {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-yellow-950 via-yellow-900 to-amber-800 flex items-center justify-center p-4">
+			<button
+				onClick={toggleFullscreen}
+				title="Fullscreen (Tekan F)"
+				className="fixed top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+			>
+				{isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
+			</button>
+
 			{showDialog && <LotteryDialog onStart={handleStart} />}
 
 			{!showDialog && (
-				<div className="w-full max-w-4xl">
+				<div className="w-full max-w-6xl">
 					<div className="text-center mb-8">
 						<div className="flex items-center justify-center gap-4 mb-4">
 							<img src="/tabalong.png" alt="Tabalong" className="h-24 mb-4" />
@@ -173,7 +260,11 @@ export default function App() {
 						</p>
 					</div>
 
-					<LotteryTicket currentNumber={currentNumber} isDrawing={isDrawing} />
+					<LotteryTicket
+						currentNumber={currentNumber}
+						isDrawing={isDrawing}
+						maxDigits={String(endNumber).length}
+					/>
 
 					<div className="text-center mt-8">
 						<button
@@ -181,11 +272,18 @@ export default function App() {
 							disabled={isDrawing || drawnNumbers.length >= totalDraws}
 							className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-12 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-black"
 						>
-							{isDrawing
-								? "Mengundi..."
-								: drawnNumbers.length >= totalDraws
-									? "Undian Selesai"
-									: "Mulai Undian"}
+							{isDrawing ? (
+								"Mengundi..."
+							) : drawnNumbers.length >= totalDraws ? (
+								"Undian Selesai"
+							) : (
+								<span className="flex items-center gap-2">
+									Mulai Undian{" "}
+									<kbd className="hidden md:inline-block px-2 py-0.5 bg-black/20 rounded text-xs">
+										Spasi
+									</kbd>
+								</span>
+							)}
 						</button>
 
 						<button
