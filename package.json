@@ -1,8 +1,10 @@
 {
-	"name": "Undian Web App",
+	"name": "undian-makan-paliat-besamaan",
+	"author": "muhammad wildan iskandar",
 	"version": "0.1.0",
 	"type": "module",
 	"private": true,
+	"license": "MIT",
 	"dependencies": {
 		"@radix-ui/react-accordion": "^1.2.3",
 		"@radix-ui/react-alert-dialog": "^1.1.6",
