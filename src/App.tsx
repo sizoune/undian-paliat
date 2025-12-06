@@ -1,8 +1,14 @@
 /** biome-ignore-all lint/a11y/useButtonType: template */
+import confetti from "canvas-confetti";
 import { useCallback, useEffect, useState } from "react";
 import { DrawnNumbers } from "./components/drawn-numbers";
 import { LotteryDialog } from "./components/lottery-dialog";
 import { LotteryTicket } from "./components/lottery-ticket";
+
+// Initialize sounds
+const drumRoll = new Audio("/sounds/drum-roll.mp3");
+drumRoll.loop = true;
+const tada = new Audio("/sounds/tada.mp3");
 
 export default function App() {
 	const [showDialog, setShowDialog] = useState(true);
@@ -33,6 +39,8 @@ export default function App() {
 		if (isDrawing || drawnNumbers.length >= totalDraws) return;
 
 		setIsDrawing(true);
+		drumRoll.currentTime = 0;
+		drumRoll.play().catch(() => {}); // catch error if user hasn't interacted yet
 
 		// Animate for 3 seconds then draw a number
 		setTimeout(() => {
@@ -44,6 +52,40 @@ export default function App() {
 				prev.filter((_, index) => index !== randomIndex),
 			);
 			setIsDrawing(false);
+
+			// Stop drum roll and play tada
+			drumRoll.pause();
+			tada.currentTime = 0;
+			tada.play().catch(() => {});
+
+			// Fire confetti
+			const duration = 3 * 1000;
+			const animationEnd = Date.now() + duration;
+			const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+			const randomInRange = (min: number, max: number) => {
+				return Math.random() * (max - min) + min;
+			};
+
+			const interval = window.setInterval(() => {
+				const timeLeft = animationEnd - Date.now();
+
+				if (timeLeft <= 0) {
+					return clearInterval(interval);
+				}
+
+				const particleCount = 50 * (timeLeft / duration);
+				confetti({
+					...defaults,
+					particleCount,
+					origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+				});
+				confetti({
+					...defaults,
+					particleCount,
+					origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+				});
+			}, 250);
 		}, 3000);
 	}, [isDrawing, drawnNumbers, totalDraws, availableNumbers]);
 
