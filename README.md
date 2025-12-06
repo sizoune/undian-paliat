@@ -26,13 +26,13 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi di komputer lokal Anda:
 1. **Instalasi Dependensi**
    Jalankan perintah berikut di terminal untuk mengunduh semua pustaka yang diperlukan:
    ```bash
-   npm i
+   bun install
    ```
 
 2. **Menjalankan Server Development**
    Setelah instalasi selesai, jalankan aplikasi dengan perintah:
    ```bash
-   npm run dev
+   bun dev
    ```
    Buka tautan yang muncul di terminal (biasanya `http://localhost:5173`) untuk melihat aplikasi.
 
