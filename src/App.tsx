@@ -278,6 +278,7 @@ export default function App() {
 						className="flex items-center justify-center p-0"
 						style={{ width: "100%", height: "100%", borderRadius: "9999px" }}
 					>
+						{/** biome-ignore lint/a11y/noSvgWithoutTitle:valid */}
 						<svg
 							style={{ width: "1.5rem", height: "1.5rem" }}
 							viewBox="0 0 16 16"
