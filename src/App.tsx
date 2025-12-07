@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/a11y/useButtonType: template */
 import confetti from "canvas-confetti";
-import { Maximize, Minimize } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { DrawnNumbers } from "./components/drawn-numbers";
 import { LotteryDialog } from "./components/lottery-dialog";
