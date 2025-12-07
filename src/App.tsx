@@ -1,10 +1,11 @@
 /** biome-ignore-all lint/a11y/useButtonType: template */
 import confetti from "canvas-confetti";
-import { Github, Maximize, Minimize } from "lucide-react";
+import { Maximize, Minimize } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { DrawnNumbers } from "./components/drawn-numbers";
 import { LotteryDialog } from "./components/lottery-dialog";
 import { LotteryTicket } from "./components/lottery-ticket";
+import { Button } from "./components/ui/button";
 
 // Initialize sounds
 const drumRoll = new Audio("/sounds/drum-roll.mp3");
@@ -159,13 +160,22 @@ export default function App() {
 	const toggleFullscreen = useCallback(() => {
 		if (!document.fullscreenElement) {
 			document.documentElement.requestFullscreen();
-			setIsFullscreen(true);
 		} else {
 			if (document.exitFullscreen) {
 				document.exitFullscreen();
-				setIsFullscreen(false);
 			}
 		}
+	}, []);
+
+	// Listen to fullscreen changes
+	useEffect(() => {
+		const handleFullscreenChange = () => {
+			setIsFullscreen(!!document.fullscreenElement);
+		};
+
+		document.addEventListener("fullscreenchange", handleFullscreenChange);
+		return () =>
+			document.removeEventListener("fullscreenchange", handleFullscreenChange);
 	}, []);
 
 	// Redraw (Undi Ulang) - removes last winner and draws again immediately
@@ -250,91 +260,96 @@ export default function App() {
 	}, [isDrawing, startNumber, endNumber]);
 
 	return (
-		<div>
-			{/* Top Right Buttons */}
-			<div className="fixed top-4 right-4 z-[60] flex items-center gap-2">
+		<div className="min-h-screen bg-gradient-to-br from-yellow-950 via-yellow-900 to-amber-800 flex items-center justify-center p-4">
+			<div
+				style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 100 }}
+			>
 				{/* GitHub Button */}
-				<a
-					href="https://github.com/sizoune/undian-paliat"
-					target="_blank"
-					rel="noopener noreferrer"
-					title="Kode Sumber"
-					className="flex items-center gap-2 px-4 py-2 bg-black/70 text-white rounded-full hover:bg-black/90 transition-all shadow-lg hover:shadow-xl border border-white/20"
+				<Button
+					asChild
+					size="icon"
+					className="bg-black/50 text-yellow-300 shadow-lg hover:shadow-xl hover:bg-black/70 transition-all border-2 border-yellow-600 px-4 py-4"
+					style={{ width: "3rem", height: "3rem", borderRadius: "9999px" }}
 				>
-					<Github size={20} />
-					<span className="text-sm font-medium">Kode Sumber</span>
-				</a>
-
-				{/* Fullscreen Button */}
-				<button
-					onClick={toggleFullscreen}
-					title="Fullscreen (Tekan F)"
-					className="p-2 bg-black/70 text-white rounded-full hover:bg-black/90 transition-all shadow-lg hover:shadow-xl border border-white/20"
-				>
-					{isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
-				</button>
+					<a
+						href="https://github.com/sizoune/undian-paliat"
+						target="_blank"
+						rel="noopener noreferrer"
+						title="Kode Sumber"
+						className="flex items-center justify-center p-0"
+						style={{ width: "100%", height: "100%", borderRadius: "9999px" }}
+					>
+						<svg
+							style={{ width: "1.5rem", height: "1.5rem" }}
+							viewBox="0 0 16 16"
+							fill="currentColor"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+						</svg>
+						<span className="sr-only">Kode Sumber</span>
+					</a>
+				</Button>
 			</div>
-			<div className="min-h-screen bg-gradient-to-br from-yellow-950 via-yellow-900 to-amber-800 flex items-center justify-center p-4">
-				{showDialog && <LotteryDialog onStart={handleStart} />}
+			{showDialog && <LotteryDialog onStart={handleStart} />}
 
-				{!showDialog && (
-					<div className="w-full max-w-4xl">
-						<div className="text-center mb-8">
-							<div className="flex items-center justify-center gap-4 mb-4">
-								<img src="/tabalong.png" alt="Tabalong" className="h-24 mb-4" />
-								<img
-									src="/tabalongsmart.png"
-									alt="Tabalong Smart"
-									className="h-24 mb-4"
-								/>
-							</div>
-							<h1 className="text-yellow-300 mb-2">
-								Undian Kupon Makan Paliat Besamaan
-							</h1>
-							<p className="text-yellow-200/90">
-								Range: {startNumber} - {endNumber} | Total Undian: {totalDraws}
-							</p>
+			{!showDialog && (
+				<div className="w-full max-w-4xl">
+					<div className="text-center mb-8">
+						<div className="flex items-center justify-center gap-4 mb-4">
+							<img src="/tabalong.png" alt="Tabalong" className="h-24 mb-4" />
+							<img
+								src="/tabalongsmart.png"
+								alt="Tabalong Smart"
+								className="h-24 mb-4"
+							/>
 						</div>
-
-						<LotteryTicket
-							currentNumber={currentNumber}
-							isDrawing={isDrawing}
-							maxDigits={String(endNumber).length}
-							showInstructions={drawnNumbers.length === 0 && !isDrawing}
-						/>
-
-						<div className="text-center mt-8">
-							<button
-								onClick={handleStartDrawing}
-								disabled={isDrawing || drawnNumbers.length >= totalDraws}
-								className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-12 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-black"
-							>
-								{isDrawing ? (
-									"Mengundi..."
-								) : drawnNumbers.length >= totalDraws ? (
-									"Undian Selesai"
-								) : (
-									<span className="flex items-center gap-2">
-										Mulai Undian{" "}
-										<kbd className="hidden md:inline-block px-2 py-0.5 bg-black/20 rounded text-xs">
-											Spasi
-										</kbd>
-									</span>
-								)}
-							</button>
-
-							<button
-								onClick={handleReset}
-								className="ml-4 bg-black/50 text-yellow-300 px-8 py-4 rounded-full shadow-lg hover:shadow-xl hover:bg-black/70 transition-all border-2 border-yellow-600"
-							>
-								Reset
-							</button>
-						</div>
-
-						<DrawnNumbers numbers={drawnNumbers} totalDraws={totalDraws} />
+						<h1 className="text-yellow-300 mb-2">
+							Undian Kupon Makan Paliat Besamaan
+						</h1>
+						<p className="text-yellow-200/90">
+							Range: {startNumber} - {endNumber} | Total Undian: {totalDraws}
+						</p>
 					</div>
-				)}
-			</div>
+
+					<LotteryTicket
+						currentNumber={currentNumber}
+						isDrawing={isDrawing}
+						maxDigits={String(endNumber).length}
+						showInstructions={drawnNumbers.length === 0 && !isDrawing}
+					/>
+
+					<div className="text-center mt-8">
+						<button
+							onClick={handleStartDrawing}
+							disabled={isDrawing || drawnNumbers.length >= totalDraws}
+							className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-12 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-black"
+						>
+							{isDrawing ? (
+								"Mengundi..."
+							) : drawnNumbers.length >= totalDraws ? (
+								"Undian Selesai"
+							) : (
+								<span className="flex items-center gap-2">
+									Mulai Undian{" "}
+									<kbd className="hidden md:inline-block px-2 py-0.5 bg-black/20 rounded text-xs">
+										Spasi
+									</kbd>
+								</span>
+							)}
+						</button>
+
+						<button
+							onClick={handleReset}
+							className="ml-4 bg-black/50 text-yellow-300 px-8 py-4 rounded-full shadow-lg hover:shadow-xl hover:bg-black/70 transition-all border-2 border-yellow-600"
+						>
+							Reset
+						</button>
+					</div>
+
+					<DrawnNumbers numbers={drawnNumbers} totalDraws={totalDraws} />
+				</div>
+			)}
 		</div>
 	);
 }
