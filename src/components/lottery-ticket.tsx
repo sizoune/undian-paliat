@@ -1,6 +1,10 @@
 import { Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
+// Helper to generate arrays for rendering with stable IDs
+const generateItems = (count: number) =>
+	Array.from({ length: count }, (_, i) => i);
+
 interface LotteryTicketProps {
 	currentNumber: number;
 	isDrawing: boolean;
@@ -68,13 +72,13 @@ export function LotteryTicket({
 						{/* Decorative Elements */}
 						<div className="mt-6 flex justify-between items-center">
 							<div className="flex gap-1">
-								{[...Array(5)].map((_, i) => (
-									<div key={i} className="w-2 h-2 bg-black rounded-full"></div>
+								{generateItems(5).map((id) => (
+									<div key={id} className="w-2 h-2 bg-black rounded-full"></div>
 								))}
 							</div>
 							<div className="flex gap-1">
-								{[...Array(5)].map((_, i) => (
-									<div key={i} className="w-2 h-2 bg-black rounded-full"></div>
+								{generateItems(5).map((id) => (
+									<div key={id} className="w-2 h-2 bg-black rounded-full"></div>
 								))}
 							</div>
 						</div>
@@ -82,17 +86,17 @@ export function LotteryTicket({
 
 					{/* Perforated Edges */}
 					<div className="absolute top-0 left-0 right-0 h-2 flex justify-around">
-						{[...Array(20)].map((_, i) => (
+						{generateItems(20).map((id) => (
 							<div
-								key={i}
+								key={id}
 								className="w-2 h-2 bg-yellow-950 rounded-full -mt-1"
 							></div>
 						))}
 					</div>
 					<div className="absolute bottom-0 left-0 right-0 h-2 flex justify-around">
-						{[...Array(20)].map((_, i) => (
+						{generateItems(20).map((id) => (
 							<div
-								key={i}
+								key={id}
 								className="w-2 h-2 bg-yellow-950 rounded-full -mb-1"
 							></div>
 						))}
@@ -118,9 +122,9 @@ export function LotteryTicket({
 			{/* Floating Confetti Effect */}
 			{isDrawing && (
 				<div className="absolute inset-0 pointer-events-none">
-					{[...Array(10)].map((_, i) => (
+					{generateItems(10).map((id) => (
 						<motion.div
-							key={i}
+							key={id}
 							className="absolute w-3 h-3 bg-yellow-300 rounded-full border border-black"
 							initial={{
 								x: Math.random() * 100 - 50,
@@ -135,7 +139,7 @@ export function LotteryTicket({
 							transition={{
 								duration: 2,
 								repeat: Infinity,
-								delay: i * 0.1,
+								delay: id * 0.1,
 							}}
 							style={{
 								left: "50%",

@@ -1,4 +1,3 @@
-import { Ticket } from "lucide-react";
 import { useState } from "react";
 
 interface LotteryDialogProps {
@@ -14,11 +13,11 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		const start = parseInt(startNumber);
-		const end = parseInt(endNumber);
-		const total = parseInt(totalDraws);
+		const start = parseInt(startNumber, 10);
+		const end = parseInt(endNumber, 10);
+		const total = parseInt(totalDraws, 10);
 
-		if (isNaN(start) || isNaN(end) || isNaN(total)) {
+		if (Number.isNaN(start) || Number.isNaN(end) || Number.isNaN(total)) {
 			setError("Mohon masukkan angka yang valid");
 			return;
 		}
@@ -57,8 +56,11 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 					<div className="space-y-4">
 						<div className="flex gap-4">
 							<div className="flex-1">
-								<label className="block text-black mb-2">Nomor Awal</label>
+								<label htmlFor="start-number" className="block text-black mb-2">
+									Nomor Awal
+								</label>
 								<input
+									id="start-number"
 									type="number"
 									value={startNumber}
 									onChange={(e) => setStartNumber(e.target.value)}
@@ -68,8 +70,11 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 							</div>
 
 							<div className="flex-1">
-								<label className="block text-black mb-2">Nomor Akhir</label>
+								<label htmlFor="end-number" className="block text-black mb-2">
+									Nomor Akhir
+								</label>
 								<input
+									id="end-number"
 									type="number"
 									value={endNumber}
 									onChange={(e) => setEndNumber(e.target.value)}
@@ -80,10 +85,11 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 						</div>
 
 						<div>
-							<label className="block text-black mb-2">
+							<label htmlFor="total-draws" className="block text-black mb-2">
 								Total Undian yang Diambil
 							</label>
 							<input
+								id="total-draws"
 								type="number"
 								value={totalDraws}
 								onChange={(e) => setTotalDraws(e.target.value)}
