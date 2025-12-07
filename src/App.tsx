@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/a11y/useButtonType: template */
 import confetti from "canvas-confetti";
-import { Maximize, Minimize } from "lucide-react";
+import { Github, Maximize, Minimize } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { DrawnNumbers } from "./components/drawn-numbers";
 import { LotteryDialog } from "./components/lottery-dialog";
@@ -220,19 +220,20 @@ export default function App() {
 		}
 	};
 
-	// Auto-generate random numbers for animation (Attract Mode)
-	useEffect(() => {
-		if (!showDialog && !isDrawing && drawnNumbers.length === 0) {
-			const interval = setInterval(() => {
-				setCurrentNumber(
-					Math.floor(Math.random() * (endNumber - startNumber + 1)) +
-						startNumber,
-				);
-			}, 100);
+	// Auto-generate random numbers for animation (Attract Mode) - DISABLED
+	// Sekarang menampilkan pesan instruksi daripada nomor random berganti-ganti
+	// useEffect(() => {
+	// 	if (!showDialog && !isDrawing && drawnNumbers.length === 0) {
+	// 		const interval = setInterval(() => {
+	// 			setCurrentNumber(
+	// 				Math.floor(Math.random() * (endNumber - startNumber + 1)) +
+	// 					startNumber,
+	// 			);
+	// 		}, 100);
 
-			return () => clearInterval(interval);
-		}
-	}, [showDialog, isDrawing, startNumber, endNumber, drawnNumbers.length]);
+	// 		return () => clearInterval(interval);
+	// 	}
+	// }, [showDialog, isDrawing, startNumber, endNumber, drawnNumbers.length]);
 
 	// Generate random numbers during drawing
 	useEffect(() => {
@@ -249,73 +250,91 @@ export default function App() {
 	}, [isDrawing, startNumber, endNumber]);
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-yellow-950 via-yellow-900 to-amber-800 flex items-center justify-center p-4">
-			<button
-				onClick={toggleFullscreen}
-				title="Fullscreen (Tekan F)"
-				className="fixed top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-			>
-				{isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
-			</button>
+		<div>
+			{/* Top Right Buttons */}
+			<div className="fixed top-4 right-4 z-[60] flex items-center gap-2">
+				{/* GitHub Button */}
+				<a
+					href="https://github.com/sizoune/undian-paliat"
+					target="_blank"
+					rel="noopener noreferrer"
+					title="Kode Sumber"
+					className="flex items-center gap-2 px-4 py-2 bg-black/70 text-white rounded-full hover:bg-black/90 transition-all shadow-lg hover:shadow-xl border border-white/20"
+				>
+					<Github size={20} />
+					<span className="text-sm font-medium">Kode Sumber</span>
+				</a>
 
-			{showDialog && <LotteryDialog onStart={handleStart} />}
+				{/* Fullscreen Button */}
+				<button
+					onClick={toggleFullscreen}
+					title="Fullscreen (Tekan F)"
+					className="p-2 bg-black/70 text-white rounded-full hover:bg-black/90 transition-all shadow-lg hover:shadow-xl border border-white/20"
+				>
+					{isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
+				</button>
+			</div>
+			<div className="min-h-screen bg-gradient-to-br from-yellow-950 via-yellow-900 to-amber-800 flex items-center justify-center p-4">
+				{showDialog && <LotteryDialog onStart={handleStart} />}
 
-			{!showDialog && (
-				<div className="w-full max-w-6xl">
-					<div className="text-center mb-8">
-						<div className="flex items-center justify-center gap-4 mb-4">
-							<img src="/tabalong.png" alt="Tabalong" className="h-24 mb-4" />
-							<img
-								src="/tabalongsmart.png"
-								alt="Tabalong Smart"
-								className="h-24 mb-4"
-							/>
+				{!showDialog && (
+					<div className="w-full max-w-4xl">
+						<div className="text-center mb-8">
+							<div className="flex items-center justify-center gap-4 mb-4">
+								<img src="/tabalong.png" alt="Tabalong" className="h-24 mb-4" />
+								<img
+									src="/tabalongsmart.png"
+									alt="Tabalong Smart"
+									className="h-24 mb-4"
+								/>
+							</div>
+							<h1 className="text-yellow-300 mb-2">
+								Undian Kupon Makan Paliat Besamaan
+							</h1>
+							<p className="text-yellow-200/90">
+								Range: {startNumber} - {endNumber} | Total Undian: {totalDraws}
+							</p>
 						</div>
-						<h1 className="text-yellow-300 mb-2">
-							Undian Kupon Makan Paliat Besamaan
-						</h1>
-						<p className="text-yellow-200/90">
-							Range: {startNumber} - {endNumber} | Total Undian: {totalDraws}
-						</p>
+
+						<LotteryTicket
+							currentNumber={currentNumber}
+							isDrawing={isDrawing}
+							maxDigits={String(endNumber).length}
+							showInstructions={drawnNumbers.length === 0 && !isDrawing}
+						/>
+
+						<div className="text-center mt-8">
+							<button
+								onClick={handleStartDrawing}
+								disabled={isDrawing || drawnNumbers.length >= totalDraws}
+								className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-12 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-black"
+							>
+								{isDrawing ? (
+									"Mengundi..."
+								) : drawnNumbers.length >= totalDraws ? (
+									"Undian Selesai"
+								) : (
+									<span className="flex items-center gap-2">
+										Mulai Undian{" "}
+										<kbd className="hidden md:inline-block px-2 py-0.5 bg-black/20 rounded text-xs">
+											Spasi
+										</kbd>
+									</span>
+								)}
+							</button>
+
+							<button
+								onClick={handleReset}
+								className="ml-4 bg-black/50 text-yellow-300 px-8 py-4 rounded-full shadow-lg hover:shadow-xl hover:bg-black/70 transition-all border-2 border-yellow-600"
+							>
+								Reset
+							</button>
+						</div>
+
+						<DrawnNumbers numbers={drawnNumbers} totalDraws={totalDraws} />
 					</div>
-
-					<LotteryTicket
-						currentNumber={currentNumber}
-						isDrawing={isDrawing}
-						maxDigits={String(endNumber).length}
-					/>
-
-					<div className="text-center mt-8">
-						<button
-							onClick={handleStartDrawing}
-							disabled={isDrawing || drawnNumbers.length >= totalDraws}
-							className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-12 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-2 border-black"
-						>
-							{isDrawing ? (
-								"Mengundi..."
-							) : drawnNumbers.length >= totalDraws ? (
-								"Undian Selesai"
-							) : (
-								<span className="flex items-center gap-2">
-									Mulai Undian{" "}
-									<kbd className="hidden md:inline-block px-2 py-0.5 bg-black/20 rounded text-xs">
-										Spasi
-									</kbd>
-								</span>
-							)}
-						</button>
-
-						<button
-							onClick={handleReset}
-							className="ml-4 bg-black/50 text-yellow-300 px-8 py-4 rounded-full shadow-lg hover:shadow-xl hover:bg-black/70 transition-all border-2 border-yellow-600"
-						>
-							Reset
-						</button>
-					</div>
-
-					<DrawnNumbers numbers={drawnNumbers} totalDraws={totalDraws} />
-				</div>
-			)}
+				)}
+			</div>
 		</div>
 	);
 }

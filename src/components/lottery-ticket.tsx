@@ -9,12 +9,14 @@ interface LotteryTicketProps {
 	currentNumber: number;
 	isDrawing: boolean;
 	maxDigits?: number;
+	showInstructions?: boolean;
 }
 
 export function LotteryTicket({
 	currentNumber,
 	isDrawing,
 	maxDigits = 3,
+	showInstructions = false,
 }: LotteryTicketProps) {
 	return (
 		<div className="relative">
@@ -46,25 +48,43 @@ export function LotteryTicket({
 						{/* Number Display */}
 						<div className="bg-white rounded-2xl p-12 shadow-inner border-4 border-black">
 							<div className="text-center">
-								<p className="text-gray-700 mb-4">Nomor Undian</p>
-								<motion.div
-									key={currentNumber}
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									transition={{ duration: 0.1 }}
-									className="text-8xl text-black tabular-nums tracking-wider"
-									style={{ fontFamily: "monospace" }}
-								>
-									{String(currentNumber).padStart(maxDigits, "0")}
-								</motion.div>
-								{isDrawing && (
-									<motion.p
-										animate={{ opacity: [0.5, 1, 0.5] }}
-										transition={{ duration: 1, repeat: Infinity }}
-										className="text-yellow-700 mt-4"
-									>
-										Sedang mengundi...
-									</motion.p>
+								{showInstructions ? (
+									<>
+										<p className="text-gray-700 mb-4">Siap untuk memulai?</p>
+										<motion.div
+											animate={{ scale: [1, 1.05, 1] }}
+											transition={{ duration: 2, repeat: Infinity }}
+											className="text-4xl md:text-5xl text-black font-bold mb-4"
+										>
+											Tekan SPASI
+										</motion.div>
+										<p className="text-gray-600 text-lg">
+											untuk memulai undian
+										</p>
+									</>
+								) : (
+									<>
+										<p className="text-gray-700 mb-4">Nomor Undian</p>
+										<motion.div
+											key={currentNumber}
+											initial={{ scale: 0.8, opacity: 0 }}
+											animate={{ scale: 1, opacity: 1 }}
+											transition={{ duration: 0.1 }}
+											className="text-8xl text-black tabular-nums tracking-wider"
+											style={{ fontFamily: "monospace" }}
+										>
+											{String(currentNumber).padStart(maxDigits, "0")}
+										</motion.div>
+										{isDrawing && (
+											<motion.p
+												animate={{ opacity: [0.5, 1, 0.5] }}
+												transition={{ duration: 1, repeat: Infinity }}
+												className="text-yellow-700 mt-4"
+											>
+												Sedang mengundi...
+											</motion.p>
+										)}
+									</>
 								)}
 							</div>
 						</div>
