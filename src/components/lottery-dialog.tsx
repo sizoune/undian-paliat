@@ -86,7 +86,7 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 						<div className="flex gap-4">
 							<div className="flex-1">
 								<label htmlFor="start-number" className="block text-black mb-2">
-									Nomor Awal
+									Nomor Awal Kupon
 								</label>
 								<input
 									id="start-number"
@@ -100,7 +100,7 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 
 							<div className="flex-1">
 								<label htmlFor="end-number" className="block text-black mb-2">
-									Nomor Akhir
+									Nomor Akhir Kupon
 								</label>
 								<input
 									id="end-number"
