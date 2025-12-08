@@ -34,6 +34,10 @@ export default function App() {
 		const saved = localStorage.getItem("undian-paliat-config");
 		return saved ? JSON.parse(saved).total : 5;
 	});
+	const [exceptions, setExceptions] = useState<number[]>(() => {
+		const saved = localStorage.getItem("undian-paliat-config");
+		return saved ? JSON.parse(saved).exceptions || [] : [];
+	});
 	const [isDrawing, setIsDrawing] = useState(false);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [drawnNumbers, setDrawnNumbers] = useState<number[]>(() => {
@@ -55,13 +59,19 @@ export default function App() {
 	useEffect(() => {
 		const savedConfig = localStorage.getItem("undian-paliat-config");
 		if (savedConfig && availableNumbers.length === 0) {
-			const { start, end } = JSON.parse(savedConfig);
-			// Reconstruct available numbers excluding already drawn ones
+			const {
+				start,
+				end,
+				exceptions: savedExceptions = [],
+			} = JSON.parse(savedConfig);
+			// Reconstruct available numbers excluding already drawn ones and exceptions
 			const allNumbers = Array.from(
 				{ length: end - start + 1 },
 				(_, i) => start + i,
 			);
-			const remaining = allNumbers.filter((n) => !drawnNumbers.includes(n));
+			const remaining = allNumbers.filter(
+				(n) => !drawnNumbers.includes(n) && !savedExceptions.includes(n),
+			);
 			setAvailableNumbers(remaining);
 		}
 	}, [availableNumbers.length, drawnNumbers]);
@@ -71,23 +81,29 @@ export default function App() {
 		localStorage.setItem("undian-paliat-winners", JSON.stringify(drawnNumbers));
 	}, [drawnNumbers]);
 
-	const handleStart = (start: number, end: number, total: number) => {
+	const handleStart = (
+		start: number,
+		end: number,
+		total: number,
+		exceptionNumbers: number[],
+	) => {
 		setStartNumber(start);
 		setEndNumber(end);
 		setTotalDraws(total);
+		setExceptions(exceptionNumbers);
 		setShowDialog(false);
 
-		// Save config
+		// Save config including exceptions
 		localStorage.setItem(
 			"undian-paliat-config",
-			JSON.stringify({ start, end, total }),
+			JSON.stringify({ start, end, total, exceptions: exceptionNumbers }),
 		);
 
-		// Initialize available numbers
+		// Initialize available numbers excluding exceptions
 		const numbers = Array.from(
 			{ length: end - start + 1 },
 			(_, i) => start + i,
-		);
+		).filter((n) => !exceptionNumbers.includes(n));
 		setAvailableNumbers(numbers);
 		setDrawnNumbers([]);
 	};
@@ -309,6 +325,9 @@ export default function App() {
 						</h1>
 						<p className="text-yellow-200/90">
 							Range: {startNumber} - {endNumber} | Total Undian: {totalDraws}
+							{exceptions.length > 0 && (
+								<> | Pengecualian: {exceptions.join(", ")}</>
+							)}
 						</p>
 					</div>
 

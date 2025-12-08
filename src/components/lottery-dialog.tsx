@@ -1,13 +1,19 @@
 import { useState } from "react";
 
 interface LotteryDialogProps {
-	onStart: (start: number, end: number, total: number) => void;
+	onStart: (
+		start: number,
+		end: number,
+		total: number,
+		exceptions: number[],
+	) => void;
 }
 
 export function LotteryDialog({ onStart }: LotteryDialogProps) {
 	const [startNumber, setStartNumber] = useState("1");
 	const [endNumber, setEndNumber] = useState("100");
 	const [totalDraws, setTotalDraws] = useState("5");
+	const [exceptions, setExceptions] = useState("");
 	const [error, setError] = useState("");
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -32,12 +38,35 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 			return;
 		}
 
-		if (total > end - start + 1) {
-			setError("Total undian tidak boleh melebihi jumlah nomor yang tersedia");
+		// Parse exceptions
+		const exceptionNumbers: number[] = [];
+		if (exceptions.trim()) {
+			const parts = exceptions.split(",").map((part) => part.trim());
+			for (const part of parts) {
+				const num = parseInt(part, 10);
+				if (Number.isNaN(num)) {
+					setError(`Nomor pengecualian tidak valid: "${part}"`);
+					return;
+				}
+				if (num < start || num > end) {
+					setError(`Nomor pengecualian ${num} di luar range ${start}-${end}`);
+					return;
+				}
+				exceptionNumbers.push(num);
+			}
+		}
+
+		// Calculate available numbers after exceptions
+		const availableCount = end - start + 1 - exceptionNumbers.length;
+
+		if (total > availableCount) {
+			setError(
+				`Total undian (${total}) tidak boleh melebihi jumlah nomor yang tersedia (${availableCount})`,
+			);
 			return;
 		}
 
-		onStart(start, end, total);
+		onStart(start, end, total, exceptionNumbers);
 	};
 
 	return (
@@ -96,6 +125,23 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 								className="w-full px-4 py-3 border-2 border-yellow-600 rounded-lg focus:border-yellow-700 focus:outline-none transition-colors bg-white"
 								placeholder="5"
 							/>
+						</div>
+
+						<div>
+							<label htmlFor="exceptions" className="block text-black mb-2">
+								Nomor Pengecualian (opsional)
+							</label>
+							<input
+								id="exceptions"
+								type="text"
+								value={exceptions}
+								onChange={(e) => setExceptions(e.target.value)}
+								className="w-full px-4 py-3 border-2 border-yellow-600 rounded-lg focus:border-yellow-700 focus:outline-none transition-colors bg-white"
+								placeholder="Contoh: 5, 10, 15"
+							/>
+							<p className="text-xs text-gray-600 mt-1">
+								Pisahkan nomor dengan koma (,)
+							</p>
 						</div>
 					</div>
 
