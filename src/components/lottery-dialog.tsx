@@ -129,7 +129,8 @@ export function LotteryDialog({ onStart }: LotteryDialogProps) {
 
 						<div>
 							<label htmlFor="exceptions" className="block text-black mb-2">
-								Nomor Pengecualian (opsional)
+								Nomor Pengecualian (Yang sudah Kena, Agar Tidak Kena Lagi)
+								(opsional)
 							</label>
 							<input
 								id="exceptions"
