@@ -321,7 +321,8 @@ export default function App() {
 							/>
 						</div>
 						<h1 className="text-yellow-300 mb-2">
-							Undian Kupon Makan Paliat Besamaan
+							Pengundian doorprize Tabalong Bershalawat dalam rangka Hari Jadi
+							Kabupaten Tabalong ke 60
 						</h1>
 						<p className="text-yellow-200/90">
 							Range: {startNumber} - {endNumber} | Total Undian: {totalDraws}
